@@ -25,7 +25,7 @@ public class Tienda implements Serializable {
         
     }
     
-    
+    //asd
     //<editor-fold defaultstate="collapsed" desc="MENUS">
     public void menu(){
         int opcion = 0;
