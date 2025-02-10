@@ -4,11 +4,13 @@
  */
 package es.educastur.danielap62.tienda;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alu02d
  */
-public class Articulo {
+public class Articulo implements Serializable, Comparable <Articulo> {
     private String idArticulo;
     private String descripcion;
     private int existencias;
@@ -56,5 +58,11 @@ public class Articulo {
     @Override
     public String toString() {
         return "Articulos{" + "idArticulo=" + idArticulo + ", descripcion=" + descripcion + ", existencias=" + existencias + ", pvp=" + pvp + '}';
+    }
+    
+    @Override
+    public int compareTo(Articulo a){
+        
+        return Double.compare(this.pvp, a.getPvp());
     }
 }

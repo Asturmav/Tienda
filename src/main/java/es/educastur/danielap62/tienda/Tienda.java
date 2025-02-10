@@ -7,6 +7,7 @@ package es.educastur.danielap62.tienda;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -77,7 +78,7 @@ public class Tienda implements Serializable {
             System.out.println("");
             System.out.println("ARTICULOS\n");
             System.out.println("1 - ");
-            System.out.println("2 - ");
+            System.out.println("2 - LISTA ARTICULOS");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
              
@@ -87,6 +88,7 @@ public class Tienda implements Serializable {
                 }
 
                 case 2:{
+                    listaArticulos();
                     break;
                 }
                 
@@ -103,17 +105,28 @@ public class Tienda implements Serializable {
         do{
             System.out.println("");
             System.out.println("CLIENTES\n");
-            System.out.println("1 - ");
-            System.out.println("2 - ");
+            System.out.println("1 - NUEVO CLIENTE");
+            System.out.println("2 - LISTA DE CLIENTES");
+            System.out.println("3 - MODIFICAR CLIENTE");
+            System.out.println("4 - BORRAR CLIENTE");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
              
             switch(opcion){
                 case 1:{
+                    
                     break;
                 }
 
                 case 2:{
+                    break;
+                }
+                
+                case 3:{
+                    break;
+                }
+                
+                case 4:{
                     break;
                 }
             }
@@ -125,9 +138,9 @@ public class Tienda implements Serializable {
         Scanner sc = new Scanner(System.in);
         do{
             System.out.println("");
-            System.out.println("PEDIDO\n");
+            System.out.println("PEDIDOS\n");
             System.out.println("1 - ");
-            System.out.println("2 - ");
+            System.out.println("2 - LISTA PEDIDOS ");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
               
@@ -137,12 +150,33 @@ public class Tienda implements Serializable {
                     }
 
                     case 2:{
+                        listaPedidos();
                         break;
                     }
                 }
             }while(opcion != 9);
     }
 //</editor-fold>
+    
+    
+    //<editor-fold defaultstate="collapsed" desc="Gestion Articulos">
+    public void listaArticulos(){
+        ArrayList <Articulo> articulosAux = new ArrayList(articulos.values());
+        Collections.sort(articulosAux);
+        
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+        System.out.println("\nDel reves:");
+        Collections.reverse(articulosAux);
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+    }
+    
+//</editor-fold>
+    
+    
     
     //<editor-fold defaultstate="collapsed" desc="Gestion pedidos">
     public String generaIdPedido (String idCliente){
@@ -266,12 +300,31 @@ public class Tienda implements Serializable {
             }
         }
     }
+    
+    
+    public void listaPedidos(){
+        Collections.sort(pedidos);
+        
+        for (Pedido p : pedidos) {
+            System.out.println(p);
+        }
+        
+        Collections.reverse(pedidos);
+        
+        for (Pedido p : pedidos) {
+            System.out.println(p);
+        }
+    }
 
 
 
     
     
 //</editor-fold>
+    
+    
+    
+    
     
     
     

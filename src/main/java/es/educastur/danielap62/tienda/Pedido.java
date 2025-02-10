@@ -10,7 +10,7 @@ import java.util.ArrayList;
  *
  * @author alu02d
  */
-public class Pedido {
+public class Pedido implements Comparable <Pedido>{
     private String idPedido;
     private Cliente clientePedido;
     private LocalDate fechaPedido;
@@ -60,5 +60,10 @@ public class Pedido {
         return "Pedido{" + "idPedido=" + idPedido + ", clientePedido=" + clientePedido + ", fechaPedido=" + fechaPedido + ", cestaCompra=" + cestaCompra + '}';
     }
     
+    @Override
+    public int compareTo(Pedido p){
+        //return this.fechaPedido.compareTo(p.getfechaPedido());
+        return this.idPedido.compareTo(p.getIdPedido());
+    }
     
 }
