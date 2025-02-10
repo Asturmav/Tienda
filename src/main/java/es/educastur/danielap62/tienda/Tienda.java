@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -141,6 +142,7 @@ public class Tienda implements Serializable {
             System.out.println("PEDIDOS\n");
             System.out.println("1 - ");
             System.out.println("2 - LISTA PEDIDOS ");
+            System.out.println("2 - LISTA PEDIDOS POR TOTAL ");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
               
@@ -151,6 +153,11 @@ public class Tienda implements Serializable {
 
                     case 2:{
                         listaPedidos();
+                        break;
+                    }
+                    
+                    case 3:{
+                        listarPedidosPorTotal();
                         break;
                     }
                 }
@@ -325,7 +332,22 @@ public class Tienda implements Serializable {
     }
 
 
-
+    public void listarPedidosPorTotal(){
+        pedidos.stream().sorted(Comparator.comparing(p->totalPedido(p))).forEach(System.out::println);
+        /*El system.out::println es una forma resumida de decirle que imprima cada cosa, es equivalente a:
+        pedidos.stream().forEach(p->System.out.println(p));
+        */
+        
+    }
+    
+    public double totalPedido(Pedido p){
+        double total=0;
+        for(LineaPedido l:p.getCestaCompra()){
+            total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
+            //Conseguimos el precio y lo multiplicamos por las unidades que compro
+        }
+        return total;
+    }
     
     
 //</editor-fold>
