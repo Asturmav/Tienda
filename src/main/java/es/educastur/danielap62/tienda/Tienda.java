@@ -162,13 +162,21 @@ public class Tienda implements Serializable {
     //<editor-fold defaultstate="collapsed" desc="Gestion Articulos">
     public void listaArticulos(){
         ArrayList <Articulo> articulosAux = new ArrayList(articulos.values());
+        System.out.println("Comparando Articulos por ID");
         Collections.sort(articulosAux);
         
         for (Articulo a : articulosAux) {
             System.out.println(a);
         }
-        System.out.println("\nDel reves:");
-        Collections.reverse(articulosAux);
+        
+        System.out.println("\nComparandolos por Precio:");
+        Collections.sort(articulosAux,new ComparaArticulosPorPrecio());
+        
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+        System.out.println("\nComparandolos por Existencias:");
+        Collections.sort(articulosAux, new ComparaArticulosPorExistencias());
         for (Articulo a : articulosAux) {
             System.out.println(a);
         }

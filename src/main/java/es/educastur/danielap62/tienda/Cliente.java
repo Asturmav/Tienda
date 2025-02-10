@@ -8,7 +8,7 @@ package es.educastur.danielap62.tienda;
  *
  * @author alu02d
  */
-public class Cliente {
+public class Cliente implements Comparable <Cliente>{
     private String dni;
     private String nombre;
     private String telefono;
@@ -58,4 +58,8 @@ public class Cliente {
         return "Cliente{" + "dni=" + dni + ", nombre=" + nombre + ", telefono=" + telefono + ", email=" + email + '}';
     }
 
+    @Override
+    public int compareTo(Cliente c){
+        return this.nombre.compareTo(c.getNombre());
+    }
 }

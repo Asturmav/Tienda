@@ -63,6 +63,6 @@ public class Articulo implements Serializable, Comparable <Articulo> {
     @Override
     public int compareTo(Articulo a){
         
-        return Double.compare(this.pvp, a.getPvp());
+        return this.idArticulo.compareTo(a.getIdArticulo());
     }
 }
