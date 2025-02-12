@@ -140,14 +140,15 @@ public class Tienda implements Serializable {
         do{
             System.out.println("");
             System.out.println("PEDIDOS\n");
-            System.out.println("1 - ");
+            System.out.println("1 - NUEVO PEDIDO");
             System.out.println("2 - LISTA PEDIDOS ");
-            System.out.println("2 - LISTA PEDIDOS POR TOTAL ");
+            System.out.println("3 - LISTA PEDIDOS POR TOTAL ");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
               
             switch(opcion){
                     case 1:{
+                        nuevoPedido();
                         break;
                     }
 
@@ -332,12 +333,30 @@ public class Tienda implements Serializable {
     }
 
 
+    /*
+        Tipos de ordenacion:
+        1: sorted()
+        2: sorted(new ComparaPedidosPorTotal())
+        3: sorted(Comparator.comparing(p->totalPedido(p)))
+        */
+    //Si queremos pasar un HashMap a stream tenemos que hacerlo: articulos.values().stream()
     public void listarPedidosPorTotal(){
-        pedidos.stream().sorted(Comparator.comparing(p->totalPedido(p))).forEach(System.out::println);
+        pedidos.stream().sorted(Comparator.comparing(p->totalPedido((Pedido) p)).reversed())
+                .forEach(p-> System.out.println(p+"\t - IMPORTE TOTAL: " + totalPedido(p)));
         /*El system.out::println es una forma resumida de decirle que imprima cada cosa, es equivalente a:
         pedidos.stream().forEach(p->System.out.println(p));
         */
         
+        //Con user pedido por teclado
+        System.out.println("Teclea NOMBRE CLIENTE");
+        String nombre=sc.next().toUpperCase();
+        pedidos.stream().filter(p->p.getClientePedido().getNombre().equals(nombre)).sorted(Comparator.comparing(p->totalPedido((Pedido) p)).reversed()).filter(p->totalPedido(p)>500)
+                .forEach(p-> System.out.println(p+"\t - IMPORTE TOTAL: " + totalPedido(p)));
+        
+        System.out.println("Teclea SECCION");
+        char s=sc.next().charAt(0);
+        articulos.values().stream().filter(a->a.getIdArticulo().charAt(0)==s).sorted(new ComparaArticulosPorPrecio()).forEach(System.out::println);
+
     }
     
     public double totalPedido(Pedido p){
@@ -360,7 +379,7 @@ public class Tienda implements Serializable {
     
     public void cargaDatos(){
         
-       clientes.put("80580845T",new Cliente("80580845T","ANA ","658111111","ana@gmail.com"));
+       clientes.put("80580845T",new Cliente("80580845T","ANA","658111111","ana@gmail.com"));
        clientes.put("36347775R",new Cliente("36347775R","LOLA","649222222","lola@gmail.com"));
        clientes.put("63921307Y",new Cliente("63921307Y","JUAN","652333333","juan@gmail.com"));
        clientes.put("02337565Y",new Cliente("02337565Y","EDU","634567890","edu@gmail.com"));

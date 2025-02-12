@@ -57,7 +57,7 @@ public class Articulo implements Serializable, Comparable <Articulo> {
 
     @Override
     public String toString() {
-        return "Articulos{" + "idArticulo=" + idArticulo + ", descripcion=" + descripcion + ", existencias=" + existencias + ", pvp=" + pvp + '}';
+        return "{" + "-" + idArticulo + ", -" + descripcion + ", -" + existencias + ", -" + pvp + '}';
     }
     
     @Override

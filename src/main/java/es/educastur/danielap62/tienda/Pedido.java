@@ -57,7 +57,7 @@ public class Pedido implements Comparable <Pedido>{
 
     @Override
     public String toString() {
-        return "Pedido{" + "idPedido=" + idPedido + ", clientePedido=" + clientePedido + ", fechaPedido=" + fechaPedido + ", cestaCompra=" + cestaCompra + '}';
+        return "{" + "-" + idPedido + ", -" + clientePedido + ", -" + fechaPedido + ", -" + cestaCompra + '}';
     }
     
     @Override
