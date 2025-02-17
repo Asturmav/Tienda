@@ -80,16 +80,23 @@ public class Tienda implements Serializable {
             System.out.println("ARTICULOS\n");
             System.out.println("1 - ");
             System.out.println("2 - LISTA ARTICULOS");
+            System.out.println("3 - LISTA ARTICULOS POR VENDIDOS");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
              
             switch(opcion){
                 case 1:{
+                    
                     break;
                 }
 
                 case 2:{
                     listaArticulos();
+                    break;
+                }
+                
+                case 3:{
+                    listaArticulosPorVendidos();
                     break;
                 }
                 
@@ -120,14 +127,17 @@ public class Tienda implements Serializable {
                 }
 
                 case 2:{
+                    listaClientes();
                     break;
                 }
                 
                 case 3:{
+                    
                     break;
                 }
                 
                 case 4:{
+                    
                     break;
                 }
             }
@@ -190,9 +200,56 @@ public class Tienda implements Serializable {
         }
     }
     
+    
+    public int unidadesArticuloVendidas(Articulo a){
+      int total=0;
+        for (Pedido p : pedidos) {
+            for(LineaPedido l:p.getCestaCompra()){
+                if(l.getIdArticulo().equals(a.getIdArticulo())){
+                    total+=l.getUnidades();    
+                }
+                
+            }
+        }
+        return total;
+    }
+    
+    public void listaArticulosPorVendidos(){
+        articulos.values().stream().sorted(Comparator.comparing(a->unidadesArticuloVendidas((Articulo) a)).reversed())
+                .forEach(a->System.out.println(a.getDescripcion() +"\t Unidades Vendidas: " + unidadesArticuloVendidas(a) ));
+                
+                
+
+    }
+    
 //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="Gestion Clientes">
+    public void nuevoCliente(){
+        String dni, nombre, telefono, email;
+        
+        System.out.println("Cual es el dni del Cliente?");
+        dni = sc.next();
+        
+        System.out.println("Cual es el nombre del Cliente?");
+        nombre = sc.next();
+        
+        System.out.println("Cual es el telefono del Cliente?");
+        telefono = sc.next();
+        
+        System.out.println("Cual es el email del Cliente?");
+        email = sc.next();
+        
+        clientes.put(dni, new Cliente(dni, nombre, telefono, email));
+    }
     
+    public void listaClientes(){
+        
+        clientes.values().stream().sorted().forEach(System.out::println);
+    }
+    
+    
+//</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="Gestion pedidos">
     public String generaIdPedido (String idCliente){
