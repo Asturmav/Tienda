@@ -39,8 +39,10 @@ public class Tienda implements Serializable {
     
     public static void main(String[] args) {
         Tienda t= new Tienda();
-        t.cargaDatos();
+        //t.cargaDatos();
+        t.leerArchivos();
         t.menu();
+        t.backup();
     }
     
 

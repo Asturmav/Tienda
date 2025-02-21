@@ -4,13 +4,14 @@
  */
 package es.educastur.danielap62.tienda;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 /**
  *
  * @author alu02d
  */
-public class Pedido implements Comparable <Pedido>{
+public class Pedido implements Serializable, Comparable <Pedido>{
     private String idPedido;
     private Cliente clientePedido;
     private LocalDate fechaPedido;

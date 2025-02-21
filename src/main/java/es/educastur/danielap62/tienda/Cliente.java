@@ -4,11 +4,13 @@
  */
 package es.educastur.danielap62.tienda;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alu02d
  */
-public class Cliente implements Comparable <Cliente>{
+public class Cliente implements Serializable, Comparable <Cliente>{
     private String dni;
     private String nombre;
     private String telefono;
