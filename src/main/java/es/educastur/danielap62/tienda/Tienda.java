@@ -4,6 +4,13 @@
 
 package es.educastur.danielap62.tienda;
 
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -428,9 +435,62 @@ public class Tienda implements Serializable {
     
 //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="Persistencia">
+    public void backup(){
+        try (ObjectOutputStream oosArticulos = new ObjectOutputStream(new FileOutputStream("articulos.dat"));
+            ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
+            ObjectOutputStream oosPedidos = new ObjectOutputStream(new FileOutputStream("pedidos.dat"))){
+            //COLECCIONES COMPLETAS
+                oosArticulos.writeObject(articulos);
+                oosClientes.writeObject(clientes);
+            //LOS PEDIDOS SE GUARDAN OBJETO A OBJETO
+                for (Pedido p: pedidos){
+                    oosPedidos.writeObject(p);
+                }
+                System.out.println("Copia de seguridad realizada con exito");
+                
+                /*Como estamos creando el objeto en caso de no encontrarlo lo que hara sera crearlo asi que
+                esta excepcion seria posible obviarla 
+                */
+        }catch(FileNotFoundException ex){
+            System.out.println("Archivo no encontrado");
+        }
+        catch (IOException ex){
+            System.out.println("Error de escritura en el fichero");
+        }
+    }
     
-    
-    
+    public void leerArchivos(){
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"));
+            ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"));
+            ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
+            //COLECCIONES COMPLETAS
+                articulos = (HashMap<String,Articulo>) oisArticulos.readObject();
+                clientes = (HashMap<String,Cliente>) oisClientes.readObject();
+            //LOS PEDIDOS SE GUARDAN OBJETO A OBJETO
+            Pedido p=null;
+                while ( (p=(Pedido)oisPedidos.readObject()) !=null){
+                    pedidos.add(p);
+                    
+                    /*
+                    if (a.startsWith(seccion){
+                        articulosSec.add(a);
+                    }
+                    */
+                }
+                System.out.println("Colecciones importadas con exito");
+                
+                
+        }catch(FileNotFoundException ex){
+            System.out.println("Archivo no encontrado");
+        }catch (EOFException ex){
+            
+        }
+        catch (ClassNotFoundException | IOException ex){
+            System.out.println(ex.toString());
+        }
+    }
+//</editor-fold>
     
     
     
