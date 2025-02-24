@@ -4,10 +4,13 @@
 
 package es.educastur.danielap62.tienda;
 
+import java.io.BufferedWriter;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -56,6 +59,7 @@ public class Tienda implements Serializable {
             System.out.println("1 - ARTICULOS");
             System.out.println("2 - CLIENTES");
             System.out.println("3 - PEDIDOS");
+            System.out.println("4 - BACKUP CLIENTES");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
              
@@ -74,6 +78,12 @@ public class Tienda implements Serializable {
                     menuPedidos();
                     break;
                 }
+                
+                case 4:{
+                    clientesTxtBackup();
+                    clientesTxtLeer();
+                    break;
+                }
             }
         }while(opcion != 9);
     }
@@ -90,6 +100,8 @@ public class Tienda implements Serializable {
             System.out.println("1 - ");
             System.out.println("2 - LISTA ARTICULOS");
             System.out.println("3 - LISTA ARTICULOS POR VENDIDOS");
+            System.out.println("4 - LISTA ARTICULOS SECCION");
+            System.out.println("5 - BACKUP POR SECCION");
             System.out.println("9 - Salir");
             opcion = sc.nextInt();
              
@@ -109,6 +121,15 @@ public class Tienda implements Serializable {
                     break;
                 }
                 
+                case 4:{
+                    articuloSeccion();
+                    break;
+                }
+                case 5:{
+                    backupSeccion();
+                    leerarchivoSeccion();
+                    break;
+                }
             }
         }while(opcion != 9);
     }  
@@ -459,7 +480,7 @@ public class Tienda implements Serializable {
             esta excepcion seria posible obviarla 
             */
         } catch (FileNotFoundException e) {
-                 System.out.println(e.toString());                                                          
+                 System.out.println("Archivo no encontrado");                                                          
         } catch (IOException e) {
                  System.out.println(e.toString());
         } 
@@ -467,7 +488,6 @@ public class Tienda implements Serializable {
     
     public void leerArchivos(){
         try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))){
-            ArrayList<Articulo> articulosAux = new ArrayList();
             Articulo a;
             while ( (a=(Articulo)oisArticulos.readObject()) != null){
                  articulos.put(a.getIdArticulo(), a);
@@ -507,8 +527,136 @@ public class Tienda implements Serializable {
                 System.out.println(e.toString()); 
         }
     }
+    
+    public void clientesTxtBackup(){
+        try(BufferedWriter bfwClientes = new BufferedWriter(new FileWriter("clientes.csv"))){
+            for(Cliente c : clientes.values()){
+                bfwClientes.write(c.getDni() + ", " + c.getNombre() + ", " + c.getTelefono() + ", " + c.getEmail() + "\n");
+            }
+            
+            System.out.println("Clientes guardados con exito");
+        }catch (FileNotFoundException e) {
+                 System.out.println("Archivo no encontrado");                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        } 
+    }
+    
+    public void clientesTxtLeer(){
+        HashMap <String, Cliente> clientesAux = new HashMap();
+        try(Scanner scClientes = new Scanner(new File ("clientes.csv"))){
+            while(scClientes.hasNextLine()){
+                String [] atributos = scClientes.nextLine().split("[,]");
+                Cliente c=new Cliente(atributos[0], atributos[1], atributos[2],atributos[3]);
+                clientesAux.put(atributos[0], c);
+            }
+        }catch (IOException e) {
+                 System.out.println(e.toString());
+        }
+        clientesAux.values().forEach(System.out::println);
+    }
 //</editor-fold>
     
+    
+    //<editor-fold defaultstate="collapsed" desc="Ejercicios clase">
+    
+    public void articuloSeccion(){
+        System.out.println("Que seccion quieres? (5 Para todos)");
+        String seccion = sc.next();
+        ArrayList<Articulo> articulosAux = new ArrayList();
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))){
+            Articulo a;
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                if(seccion.equals("5")){
+                    articulosAux.add(a);
+                } 
+                else if(a.getIdArticulo().startsWith(seccion)){
+                     articulosAux.add(a);
+                 }
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        }
+        
+        articulosAux.forEach(System.out::println);
+    }
+    
+    
+    
+    public void backupSeccion(){
+        
+        try (ObjectOutputStream oosSeccion1 = new ObjectOutputStream(new FileOutputStream("seccion1.dat"));
+            ObjectOutputStream oosSeccion2 = new ObjectOutputStream(new FileOutputStream("seccion2.dat"));
+            ObjectOutputStream oosSeccion3 = new ObjectOutputStream(new FileOutputStream("seccion3.dat"));
+            ObjectOutputStream oosSeccion4 = new ObjectOutputStream (new FileOutputStream("seccion4.dat"))) {
+	   	   
+            for (Articulo a : articulos.values()) {
+                if(a.getIdArticulo().startsWith("1")){
+                    oosSeccion1.writeObject(a);
+                }
+                else if(a.getIdArticulo().startsWith("2")){
+                    oosSeccion2.writeObject(a);
+                }
+                else if(a.getIdArticulo().startsWith("3")){
+                    oosSeccion3.writeObject(a);
+                }
+                else if(a.getIdArticulo().startsWith("4")){
+                    oosSeccion4.writeObject(a);
+                }
+            }
+            
+            System.out.println("Copia de seguridad por secciones realizada con exito.");
+	    
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        } 
+    }
+    
+    public void leerarchivoSeccion(){
+        System.out.println("Teclea la seccion cuyo archivo quieras comprobar");
+        String seccion = sc.next();
+        String nombreArchivo=null;
+        switch(seccion.charAt(0)){
+            case '1':
+                nombreArchivo="seccion1.dat";
+                break;
+            case '2':
+                nombreArchivo="seccion2.dat";
+                break;
+            case '3':
+                nombreArchivo="seccion3.dat";
+                break;
+            case '4':
+                nombreArchivo="seccion4.dat";
+                break;
+        }
+        
+        ArrayList<Articulo> articulosAux = new ArrayList();
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream(nombreArchivo))){
+            Articulo a;
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                 articulosAux.add(a);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        } 
+        
+        articulosAux.forEach(System.out::println);
+    }
+    
+    
+
+//</editor-fold>
     
     
     public void cargaDatos(){
