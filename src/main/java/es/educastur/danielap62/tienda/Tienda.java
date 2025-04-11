@@ -447,12 +447,38 @@ public class Tienda implements Serializable {
     }
     
     public double totalPedido(Pedido p){
+        /*
+        VERSION "CLASICA"
         double total=0;
         for(LineaPedido l:p.getCestaCompra()){
             total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
             //Conseguimos el precio y lo multiplicamos por las unidades que compro
         }
         return total;
+    */
+        return p.getCestaCompra().stream()
+                .mapToDouble(l->articulos.get(l.getIdArticulo()).getPvp()
+                *l.getUnidades()).sum();
+    }
+    
+    public double totalCliente(Cliente c){
+        double totalC=0;
+
+
+            for (int i = 0; i < pedidos.size(); i++) {
+                if(pedidos.get(i).getClientePedido().equals(c)){
+                    totalC+=totalPedido(pedidos.get(i));
+                }
+            }
+           
+        return totalC;
+    }
+    
+    public double totalCliente2(Cliente c){
+        return pedidos.stream().filter(p->p.getClientePedido().equals(c))
+                .mapToDouble(p->p.getCestaCompra().stream()
+                .mapToDouble(lp->lp.getUnidades()*articulos.get(lp.getIdArticulo())
+                        .getPvp()).sum()).sum();
     }
     
     
