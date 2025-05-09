@@ -600,6 +600,7 @@ public class TiendaRA5RA6 {
                .collect(Collectors.minBy(Comparator.comparing(Articulo::getPvp)));
         
         System.out.println(min);
+        
         System.out.println(max);
         
         /* ESTILO CLASICO-MIXTO
