@@ -32,6 +32,18 @@ public class Tienda implements Serializable {
     private ArrayList<Pedido> pedidos;
     private HashMap <String, Articulo> articulos;
     private HashMap <String, Cliente> clientes;
+
+    public ArrayList<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public HashMap<String, Articulo> getArticulos() {
+        return articulos;
+    }
+
+    public HashMap<String, Cliente> getClientes() {
+        return clientes;
+    }
     
     
     public Tienda(){
@@ -42,10 +54,10 @@ public class Tienda implements Serializable {
     
     public static void main(String[] args) {
         Tienda t= new Tienda();
-        //t.cargaDatos();
-        t.leerArchivos();
+        t.cargaDatos();
+        //t.leerArchivos();
         t.menu();
-        t.backup();
+        //t.backup();
     }
     
 
@@ -275,7 +287,8 @@ public class Tienda implements Serializable {
     
     public void listaClientes(){
         
-        clientes.values().stream().sorted().forEach(System.out::println);
+        clientes.values().stream().sorted(Comparator.comparing(c->totalCliente((Cliente) c)).reversed()).forEach(p-> System.out.println(p+"\t - IMPORTE TOTAL: " + totalCliente(p)));
+
     }
     
     
@@ -343,7 +356,7 @@ public class Tienda implements Serializable {
             dniT=sc.nextLine().toUpperCase();
             //EN CUALQUIER MOMENTO PODEMOS SALIR DEL BUCLE TECLEANDO RETORNO
             if (dniT.isBlank()) break;
-            if (!MetodosAux.validarDNI(dniT)|| !clientes.containsKey(dniT)) System.out.println("El DNI no es válido O NO ES CLIENTE DE LA TIENDA");;
+            if (!MetodosAux.validarDni(dniT)|| !clientes.containsKey(dniT)) System.out.println("El DNI no es válido O NO ES CLIENTE DE LA TIENDA");;
         }while (!clientes.containsKey(dniT));
         
         if (!dniT.isBlank()){
@@ -680,11 +693,141 @@ public class Tienda implements Serializable {
         articulosAux.forEach(System.out::println);
     }
     
-    
+    public void backupPedidosClientes() {
+       
+        /*OPCION 1 - CLIENTE A CLIENTE - IMPLICA PROCESAR CADA CLIENTE POR SEPARADO Y RECORRER PEDIDOS 
+        TANTAS VECES COMO CLIENTES HAY */
+        boolean tienePedidos;
+        String archivo;
+        for (Cliente c:clientes.values()){
+            tienePedidos=false;       
+            for (Pedido p: pedidos ){
+                if(p.getClientePedido().equals(c)){
+                    tienePedidos=true;
+                    break;
+                }
+            }
+            if (tienePedidos){
+                archivo="PedidosCliente_" + c.getNombre()+".dat";
+                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo)))
+                {
+                   for (Pedido p: pedidos ){
+                        if(p.getClientePedido().equals(c)) {
+                            oos.writeObject(p);
+                        }
+                   }
+                } catch (IOException e) {
+                   System.out.println(e.toString());
+                } 
+                
+            }
+        }
+        System.out.println("ARCHIVOS CREADOS CORRECTAMENTE\n");
+        
+        /*AHORA SOLICITAMOS EL DNI DE UN CLIENTE PARA MOSTRAR SUS PEDIDOS
+        DESDE EL ARCHIVO .dat CORRESPONDIENTE*/
+         
+        String dniT; 
+        //NO PERMITIMOS ENTRADA DE DNIs NO VÁLIDOS O QUE NO ESTÁN EN LA TIENDA
+        do{
+            System.out.println("DNI CLIENTE:");
+            dniT=sc.next().toUpperCase();    
+        }while (!clientes.containsKey(dniT)||!MetodosAux.validarDni(dniT));
+        
+        //COMPROBAMOS AHORA SI EL DNI TIENE PEDIDOS.
+        //SI NO LOS TIENE NO SE CREÓ SU ARCHIVO
+        tienePedidos=false;       
+        for (Pedido p: pedidos ){
+            if(p.getClientePedido().equals(clientes.get(dniT))) {
+                tienePedidos=true;
+                break;
+            }
+        }
+        
+        if (tienePedidos){
+            archivo="PedidosCliente_" + clientes.get(dniT).getNombre()+".dat";
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo)))
+            {
+                Pedido p;
+                while ( (p=(Pedido)ois.readObject()) != null){
+                     System.out.println("\nPEDIDO: " + p.getIdPedido() + " DE: " + p.getClientePedido().getNombre());
+                     for (LineaPedido l:p.getCestaCompra()){
+                         System.out.println(articulos.get(l.getIdArticulo()).getDescripcion()
+                                 + "\t Unidades: " +l.getUnidades());
+                     }
+                } 
+            } catch (EOFException e) {
+                System.out.println("Fin archivo");
+            } catch (IOException e) {
+                System.out.println("No existen pedidos para ese DNI");
+            } catch (ClassNotFoundException ex) {
+            }
+        } 
+         
+        /* BACKUP OPCION 2 - VAMOS PEDIDO A PEDIDO Y SOBRE LA MARCHA ABRIENDO 1 ObjectOutputStream POR CLIENTE
+        Y PASANDO SUS PEDIDOS AL CORRESPONDIENTE ARCHIVO - LO HACEMOS TODO DE UNA PASADA PERO HAY QUE ABRIR
+        A LA VEZ BASTANTES CANALES DE E/S Y MANEJAR UN HASHMAP DE CLIENTES --> ObjectOutputStream */ 
+        /*
+        HashMap <String,ObjectOutputStream> clientesConPedido =new HashMap();
+        String archivo;
+        String nombreCliente;
+        for (Pedido p:pedidos){
+            nombreCliente=p.getClientePedido().getNombre();
+            try{
+                if (!clientesConPedido.containsKey(nombreCliente)){
+                    archivo= "PedidosCliente_" + nombreCliente +".dat";
+                    clientesConPedido.put(nombreCliente, new ObjectOutputStream(new FileOutputStream(archivo)));
+                    clientesConPedido.get(nombreCliente).writeObject(p);
+                }else{
+                    clientesConPedido.get(nombreCliente).writeObject(p);
+                }
+            }
+            catch (IOException e) {
+                System.out.println(e.toString());
+            } 
+        }
+        //Cerramos todos los canales de serialización hacía los archivos pues no hemso podido hacer Try_with_resources
+        for (ObjectOutputStream oos: clientesConPedido.values()){
+            try {
+                oos.close();
+            } catch (IOException e) {
+                System.out.println(e.toString());
+            }
+        }
+        
+        String dniT; 
+        do{
+            System.out.println("DNI CLIENTE:");
+            dniT=sc.next().toUpperCase();    
+        }while (!clientes.containsKey(dniT)||!MetodosAux.validarDNI(dniT));
+        
+              
+        if (clientesConPedido.containsKey(clientes.get(dniT).getNombre())){
+            archivo="PedidosCliente_" + clientes.get(dniT).getNombre()+".dat";
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo)))
+            {
+                Pedido p=null;
+                while ( (p=(Pedido)ois.readObject()) != null){
+                     System.out.println("\nPEDIDO: " + p.getIdPedido() + " DE: " + p.getClientePedido().getNombre());
+                     for (LineaPedido l:p.getCestaCompra()){
+                         System.out.println(articulos.get(l.getIdArticulo()).getDescripcion()
+                                 + "\t Unidades: " +l.getUnidades());
+                     }
+                } 
+            } catch (EOFException e) {
+                System.out.println("Fin archivo");
+            } catch (IOException e) {
+                System.out.println(e.toString());
+            } catch (ClassNotFoundException e) {
+                System.out.println(e.toString());
+            }
+        }*/
+        
+    }
 
 //</editor-fold>
     
-    
+    /*
     public void cargaDatos(){
         
        clientes.put("80580845T",new Cliente("80580845T","ANA","658111111","ana@gmail.com"));
@@ -714,4 +857,34 @@ public class Tienda implements Serializable {
        pedidos.add(new Pedido("63921307Y-001/2024",clientes.get("63921307Y"),hoy.minusDays(4), new ArrayList<>
         (List.of(new LineaPedido("2-11",5),new LineaPedido("2-33",3),new LineaPedido("4-33",2)))));
     }
+*/
+      public void cargaDatos(){
+       clientes.put("90015161S",new Cliente("90015161S","ANA ","658111111","ana@gmail.com"));
+       clientes.put("96819473F",new Cliente("96819473F","ANTONIO","649222222","antonio@gmail.com"));
+       clientes.put("95767515T",new Cliente("95767515T","AURORA","652333333","aurora@gmail.com"));
+       clientes.put("97801164N",new Cliente("97801164N","EMILIO","649222222","emilio@gmail.com"));
+       clientes.put("82801164N",new Cliente("82801164N","EVA","652333333","eva@gmail.com"));
+         
+       
+       articulos.put("1-11",new Articulo("1-11","RATON LOGITECH ST ",14,15));
+       articulos.put("1-22",new Articulo("1-22","TECLADO STANDARD  ",9,18));
+       articulos.put("2-11",new Articulo("2-11","HDD SEAGATE 1 TB  ",16,80));
+       articulos.put("2-22",new Articulo("2-22","SSD KINGSTOM 256GB",0,70));
+       articulos.put("2-33",new Articulo("2-33","SSD KINGSTOM 512GB",5,200));
+       articulos.put("3-22",new Articulo("3-22","EPSON PRINT XP300 ",5,80));
+       articulos.put("4-11",new Articulo("4-11","ASUS  MONITOR  22 ",10,100));
+       articulos.put("4-22",new Articulo("4-22","HP MONITOR LED 28 ",5,180));
+      
+       LocalDate hoy = LocalDate.now();
+       pedidos.add(new Pedido("90015161S-001/2025",clientes.get("90015161S"),hoy.minusDays(1), new ArrayList<>
+        (List.of(new LineaPedido("2-33",5),new LineaPedido("4-11",5)))));                                                                                                                                                               
+       pedidos.add(new Pedido("90015161S-002/2025",clientes.get("90015161S"),hoy.minusDays(2), new ArrayList<>
+        (List.of(new LineaPedido("2-11",5),new LineaPedido("4-11",1)))));
+       pedidos.add(new Pedido("96819473F-001/2025",clientes.get("96819473F"),hoy.minusDays(3), new ArrayList<>
+        (List.of(new LineaPedido("4-22",1),new LineaPedido("2-22",3)))));
+       pedidos.add(new Pedido("95767515T-001/2025",clientes.get("95767515T"),hoy.minusDays(5), new ArrayList<>
+        (List.of(new LineaPedido("1-11",3),new LineaPedido("2-11",3)))));
+       pedidos.add(new Pedido("97801164N-001/2025",clientes.get("97801164N"),hoy.minusDays(4), new ArrayList<>
+        (List.of(new LineaPedido("2-11",1),new LineaPedido("2-33",3),new LineaPedido("1-11",2)))));
+    } 
 }
