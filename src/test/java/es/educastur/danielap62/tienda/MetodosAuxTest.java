@@ -16,8 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author alu02d
  */
 public class MetodosAuxTest {
+
     
     public MetodosAuxTest() {
+        
     }
     
     @BeforeAll
@@ -44,31 +46,44 @@ public class MetodosAuxTest {
         System.out.println("Test para el metodo validarDni");
     }
 
-    /**
-     * Test of calcularLetraDNI method, of class MetodosAux.
-     */
-    
 
-    /**
-     * Test of esInt method, of class MetodosAux.
-     */
     @Test
     public void testEsInt() {
-        System.out.println("Test para el metodo esInt");
-        assertTrue(MetodosAux.esInt("-5"), "El -5 es int");
-        assertTrue(MetodosAux.esInt("5"), "El 5 es int");
-        assertFalse(MetodosAux.esInt("5.5"), "El 5.5 no es int");
-        assertFalse(MetodosAux.esInt("xyt"), "El xyt no es int");
-        
-        
+        assertAll("esInt",
+            () -> assertTrue(MetodosAux.esInt("8")),
+            () -> assertTrue(MetodosAux.esInt("46")),
+            () -> assertTrue(MetodosAux.esInt("55")),
+            () -> assertFalse(MetodosAux.esInt("8.8")),
+            () -> assertFalse(MetodosAux.esInt("-55.5")),
+            () -> assertFalse(MetodosAux.esInt("HOLA"))
+        );
     }
+
+
 
     /**
      * Test of esDouble method, of class MetodosAux.
      */
     @Test
     public void testEsDouble() {
-        System.out.println("Test para el metodo esDouble");
+        assertAll("esDouble",
+            () -> assertTrue(MetodosAux.esDouble("8")),
+            () -> assertTrue(MetodosAux.esDouble("55")),
+            () -> assertTrue(MetodosAux.esDouble("8.8")),
+            () -> assertTrue(MetodosAux.esDouble("-55.5")),
+            () -> assertFalse(MetodosAux.esDouble("HOLA")),
+            () -> assertFalse(MetodosAux.esDouble("E"))
+        );
+    }
+    
+    @Test
+    public void testValidarDni() {
+        assertAll("validarDni",
+            () -> assertTrue(MetodosAux.validarDni("90015161S"), "DNI válido: 90015161S"),
+            () -> assertTrue(MetodosAux.validarDni("90463229C"), "DNI válido: 90463229C"),
+            () -> assertFalse(MetodosAux.validarDni("72825528R"), "DNI inválido: 72825528R"),
+            () -> assertFalse(MetodosAux.validarDni("90463229X"), "DNI inválido: 90463229X")
+        );
     }
     
 }
